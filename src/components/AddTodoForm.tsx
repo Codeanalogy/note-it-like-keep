@@ -13,9 +13,11 @@ const AddTodoForm: React.FC<AddTodoFormProps> = ({ onAdd, onClose }) => {
   const [content, setContent] = useState('');
   const [category, setCategory] = useState<Todo['category']>('personal');
 
+  // BUG 9: Form submission doesn't prevent default behavior consistently
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+    // Missing e.preventDefault() in some execution paths
     if (title.trim()) {
+      e.preventDefault();
       onAdd({
         title: title.trim(),
         content: content.trim(),
@@ -25,6 +27,7 @@ const AddTodoForm: React.FC<AddTodoFormProps> = ({ onAdd, onClose }) => {
       setContent('');
       setCategory('personal');
     }
+    // If title is empty, form might submit and cause page refresh
   };
 
   const handleBackdropClick = (e: React.MouseEvent) => {
@@ -33,10 +36,11 @@ const AddTodoForm: React.FC<AddTodoFormProps> = ({ onAdd, onClose }) => {
     }
   };
 
+  // BUG 10: Inconsistent styling - missing category styling in urgent state
   const categoryColors = {
     personal: 'bg-green-100 border-green-200',
     work: 'bg-blue-100 border-blue-200',
-    urgent: 'bg-red-100 border-red-200'
+    // Missing urgent category styling
   };
 
   return (
@@ -44,7 +48,7 @@ const AddTodoForm: React.FC<AddTodoFormProps> = ({ onAdd, onClose }) => {
       className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50"
       onClick={handleBackdropClick}
     >
-      <div className={`bg-white rounded-xl shadow-2xl w-full max-w-md border-2 ${categoryColors[category]} transform transition-all duration-200 scale-100`}>
+      <div className={`bg-white rounded-xl shadow-2xl w-full max-w-md border-2 ${categoryColors[category] || 'bg-gray-100 border-gray-200'} transform transition-all duration-200 scale-100`}>
         {/* Header */}
         <div className="flex items-center justify-between p-6 pb-4">
           <h2 className="text-lg font-semibold text-gray-900">Create New Note</h2>
