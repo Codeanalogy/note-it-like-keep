@@ -29,28 +29,25 @@ const TodoCard: React.FC<TodoCardProps> = ({ todo, onUpdate, onDelete, onToggleC
     urgent: 'bg-red-400'
   };
 
-  // BUG 5: Form validation issue - allows saving empty titles
   const handleSave = () => {
-    // Missing validation for empty title
-    onUpdate(todo.id, {
-      title: editTitle, // Should check if trim() is not empty
-      content: editContent.trim(),
-      category: editCategory
-    });
-    setIsEditing(false);
+    if (editTitle.trim()) {
+      onUpdate(todo.id, {
+        title: editTitle.trim(),
+        content: editContent.trim(),
+        category: editCategory
+      });
+      setIsEditing(false);
+    }
   };
 
-  // BUG 6: State not properly reset on cancel
   const handleCancel = () => {
-    // Missing reset for editTitle
+    setEditTitle(todo.title);
     setEditContent(todo.content);
     setEditCategory(todo.category);
     setIsEditing(false);
   };
 
-  // BUG 7: Date formatting can crash on invalid dates
   const formatDate = (date: Date) => {
-    // No error handling for invalid date objects
     return new Intl.DateTimeFormat('en-US', {
       month: 'short',
       day: 'numeric',
@@ -58,9 +55,6 @@ const TodoCard: React.FC<TodoCardProps> = ({ todo, onUpdate, onDelete, onToggleC
       minute: '2-digit'
     }).format(date);
   };
-
-  // BUG 8: Menu doesn't close when clicking outside
-  // Missing useEffect to handle outside clicks
 
   return (
     <div className={`bg-white rounded-xl shadow-sm border-2 transition-all duration-200 hover:shadow-md hover:scale-[1.02] ${

@@ -21,7 +21,7 @@ const Index = () => {
   const [filterCategory, setFilterCategory] = useState<string>('all');
   const [showAddForm, setShowAddForm] = useState(false);
 
-  // BUG 1: Memory Leak - useEffect runs on every render without proper dependencies
+  // Load todos from localStorage on component mount
   useEffect(() => {
     const savedTodos = localStorage.getItem('todos');
     if (savedTodos) {
@@ -32,12 +32,12 @@ const Index = () => {
       }));
       setTodos(parsedTodos);
     }
-  }); // Missing dependency array
+  }, []);
 
-  // BUG 2: Excessive localStorage writes - saves on every render
+  // Save todos to localStorage whenever todos change
   useEffect(() => {
     localStorage.setItem('todos', JSON.stringify(todos));
-  }); // Missing dependency array
+  }, [todos]);
 
   const addTodo = (todoData: Omit<Todo, 'id' | 'completed' | 'createdAt' | 'updatedAt'>) => {
     const newTodo: Todo = {
@@ -71,15 +71,13 @@ const Index = () => {
     ));
   };
 
-  // BUG 3: Case-sensitive search (should be case-insensitive)
   const filteredTodos = todos.filter(todo => {
-    const matchesSearch = todo.title.includes(searchTerm) ||
-                         todo.content.includes(searchTerm); // Missing toLowerCase()
+    const matchesSearch = todo.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         todo.content.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = filterCategory === 'all' || todo.category === filterCategory;
     return matchesSearch && matchesCategory;
   });
 
-  // BUG 4: Incorrect count calculation - includes completed todos in all categories
   const categories = [
     { value: 'all', label: 'All', count: todos.length },
     { value: 'personal', label: 'Personal', count: todos.filter(t => t.category === 'personal').length },
